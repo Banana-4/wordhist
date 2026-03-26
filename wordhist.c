@@ -15,6 +15,7 @@ int main() {
 
     for (int i = 0; i < MAX; ++i) {
         lengths[i] = 0;
+        words[i] = NULL;
     }
     int i = -1;
     int h = 0;
@@ -46,6 +47,13 @@ int main() {
             }
         }
     }
+
+    if (inword) {
+        buffer[bp] = '\0';
+        words[i] = buffer;
+        h = h < lengths[i] ? lengths[i] : h;
+    }
+
     //separate the output from input with a new line
     printf("\n");
 
@@ -64,6 +72,8 @@ int main() {
     printf("\n Words:\n");
     for (int j = 0; j <= i; ++j) {
         printf(" %s : %d\n", words[j], lengths[j]);
-
+    }
+    for (int j = 0; j <= i; ++j) {
+        free(words[j]);
     }
 }
