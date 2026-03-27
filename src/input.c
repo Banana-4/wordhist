@@ -30,6 +30,7 @@ int input_loop(char **words, const size_t MAX_WORD, int *lens, const size_t MAX,
             buf[bp++] = c;
             if (bp == MAX_WORD - 1) {
                 del_words(words, i);
+                free(buf);
                 return -1;
             }
         }
