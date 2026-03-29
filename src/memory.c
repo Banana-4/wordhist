@@ -33,6 +33,21 @@ Str *new_Str() {
 
 }
 
+StrArray *new_StrArray() {
+    StrArray *strs = (StrArray*)malloc(sizeof(StrArray));
+    if (!strs) {
+        return NULL;
+    }
+    strs->size = SIZE;
+    strs->len = 0;
+    strs->block = (Str**)malloc(sizeof(Str) * strs->size);
+    if (!strs->block) {
+        free(strs);
+        return NULL;
+    }
+   return strs;
+}
+
 bool __grow_Array(Array *a) {
     a->size = a->size * 2;
     int *new = realloc(a->block, a->size);
@@ -50,6 +65,16 @@ bool __grow_Str(Str *s) {
         return false;
     }
     s->block = new;
+    return true;
+}
+
+bool __grow_StrArray(StrArray *strs) {
+    strs->size = strs->size * 2;
+    Str **new = realloc(strs->block, strs->size);
+    if (!new) {
+        return false;
+    }
+    strs->block = new;
     return true;
 }
 
@@ -80,6 +105,20 @@ bool append_Str(Str *s, char c) {
     return true;
 }
 
+bool append_StrArray(StrArray *strs, Str *s) {
+     if (!strs) {
+        return false;
+    }
+    if (++strs->len == strs->size) {
+        if (!__grow_StrArray(strs)) {
+            return false;
+        }
+    }
+    strs->block[strs->len++] = s;
+    return true;
+
+}
+
 void del_Array(Array *a) {
     if (!a) {
       return;
@@ -95,4 +134,14 @@ void del_Str(Str *s) {
     }
     free(s->block);
     free(s);
+}
+
+void del_StrArray(StrArray *strs) {
+    if (!strs) {
+        return;
+    }
+    for (int i = 0; i < strs->len; ++i) {
+        del_Str(strs->block[i]);
+    }
+    free(strs);
 }
