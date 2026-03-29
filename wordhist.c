@@ -7,10 +7,6 @@
 int main() {
     int lengths[MAX];
     char *words[MAX];
-    for (int i = 0; i < MAX; ++i) {
-        lengths[i] = 0;
-        words[i] = NULL;
-    }
     int h = 0;
     int len = input_loop(words, MAX_WORD, lengths, MAX, &h);
     if (len == -1) {
