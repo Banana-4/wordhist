@@ -72,7 +72,7 @@ bool __grow_Str(Str *s) {
 
 bool __grow_StrArray(StrArray *strs) {
     size_t size = strs->size * 2;
-    Str **new = realloc(strs->block, sizeof(Str) * size);
+    Str **new = realloc(strs->block, sizeof(Str*) * size);
     if (!new) {
         return false;
     }
@@ -145,5 +145,6 @@ void del_StrArray(StrArray *strs) {
     for (int i = 0; i < strs->len; ++i) {
         del_Str(strs->block[i]);
     }
+    free(strs->block);
     free(strs);
 }
