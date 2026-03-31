@@ -1,4 +1,5 @@
 #pragma once
+#include "../include/memory.h"
 #include <stdio.h>
 
-void histogram(char **words, const int *lens, const size_t MAX, int h);
+void histogram(StrArray *words, Array *lens, int h);
