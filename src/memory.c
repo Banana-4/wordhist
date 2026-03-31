@@ -1,5 +1,6 @@
 #include "../include/memory.h"
 #include <stdlib.h>
+#include <stdio.h>
 #define SIZE 8
 
 Array *new_Array() {
@@ -14,7 +15,7 @@ Array *new_Array() {
         free(a);
         return NULL;
     }
-   return a;
+    return a;
 }
 
 Str *new_Str() {
@@ -29,8 +30,7 @@ Str *new_Str() {
         free(s);
         return NULL;
     }
-   return s;
-
+    return s;
 }
 
 StrArray *new_StrArray() {
@@ -45,35 +45,38 @@ StrArray *new_StrArray() {
         free(strs);
         return NULL;
     }
-   return strs;
+    return strs;
 }
 
 bool __grow_Array(Array *a) {
-    a->size = a->size * 2;
-    int *new = realloc(a->block, a->size);
+    size_t size = a->size * 2;
+    int *new = realloc(a->block, sizeof(int) * size);
     if (!new) {
         return false;
     }
+    a->size = size;
     a->block = new;
     return true;
 }
 
 bool __grow_Str(Str *s) {
-    s->size = s->size * 2;
-    char *new = realloc(s->block, s->size);
+    size_t size = s->size * 2;
+    char *new = realloc(s->block, size);
     if (!new) {
         return false;
     }
+    s->size = size;
     s->block = new;
     return true;
 }
 
 bool __grow_StrArray(StrArray *strs) {
-    strs->size = strs->size * 2;
-    Str **new = realloc(strs->block, strs->size);
+    size_t size = strs->size * 2;
+    Str **new = realloc(strs->block, sizeof(Str) * size);
     if (!new) {
         return false;
     }
+    strs->size = size;
     strs->block = new;
     return true;
 }
@@ -82,7 +85,7 @@ bool append_Array(Array *a, int n) {
     if (!a) {
         return false;
     }
-    if (++a->len == a->size) {
+    if (a->len + 1 > a->size) {
         if (!__grow_Array(a)) {
             return false;
         }
@@ -95,7 +98,7 @@ bool append_Str(Str *s, char c) {
     if (!s) {
         return false;
     }
-    if (++s->len == s->size - 1) {
+    if (s->len + 1 >= s->size) {
         if (!__grow_Str(s)) {
             return false;
         }
@@ -109,14 +112,13 @@ bool append_StrArray(StrArray *strs, Str *s) {
      if (!strs) {
         return false;
     }
-    if (++strs->len == strs->size) {
+    if (strs->len + 1 > strs->size) {
         if (!__grow_StrArray(strs)) {
             return false;
         }
     }
     strs->block[strs->len++] = s;
     return true;
-
 }
 
 void del_Array(Array *a) {
