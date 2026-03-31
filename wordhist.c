@@ -1,19 +1,30 @@
 #include "include/input.h"
 #include "include/histogram.h"
+#include "include/memory.h"
+
 #include <stdio.h>
-#define MAX 100
-#define MAX_WORD 40
 
 int main() {
-    int lengths[MAX];
-    char *words[MAX];
-    int h = 0;
-    int len = input_loop(words, MAX_WORD, lengths, MAX, &h);
-    if (len == -1) {
-        fprintf(stderr, "Critical error exiting...\n");
-        exit(1);
+    Array *lengths = new_Array();
+    if (!lengths) {
+        return 1;
     }
-    histogram(words, lengths, len, h);
-    del_words(words, len);
+    StrArray *words = new_StrArray();
+    if (!words) {
+        del_Array(lengths);
+        return 1;
+    }
+
+    int h = 0;
+    int signal = input_loop(words, lengths, &h);
+    if (signal == 1) {
+        fprintf(stderr, "Critical error exiting...\n");
+        del_Array(lengths);
+        del_StrArray(words);
+        exit(signal);
+    }
+    histogram(words, lengths, h);
+    del_Array(lengths);
+    del_StrArray(words);
     return 0;
 }
