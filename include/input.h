@@ -3,6 +3,6 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include "memory.h"
 
-int input_loop(char **words, const size_t MAX_WORD, int *lens, const size_t MAX, int *h);
-void del_words(char **words, const size_t len);
+int input_loop(StrArray *words, Array *lens, int *h);
