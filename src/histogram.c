@@ -1,10 +1,10 @@
 #include "../include/histogram.h"
 
-void histogram(char **words, const int *lens, const size_t MAX, int h) {
+void histogram(StrArray *words, Array *lens, int h) {
     printf("\n");
     while (h > 0) {
-        for (int i = 0; (i < MAX) && (lens[i] > 0); ++i) {
-            if (lens[i] >= h)
+        for (int i = 0; i < words->len; ++i) {
+            if (lens->block[i] >= h)
                 printf(" # ");
             else
                 printf("   ");
@@ -13,7 +13,7 @@ void histogram(char **words, const int *lens, const size_t MAX, int h) {
         h--;
     }
     printf("\n Words:\n");
-    for (int j = 0; j <= MAX; ++j) {
-        printf(" %s : %d\n", words[j], lens[j]);
+    for (int i = 0; i < words->len; ++i) {
+        printf(" %s : %d\n", words->block[i]->block, lens->block[i]);
     }
 }
