@@ -1,6 +1,7 @@
 #include "../include/memory.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 HashMap *new_HashMap() {
     HashMap *m = (HashMap *)malloc(sizeof(HashMap));
@@ -14,7 +15,7 @@ HashMap *new_HashMap() {
         return NULL;
     }
     for (int i = 0; i < m->size; ++i) {
-        m->strs = NULL;
+        m->strs[i] = NULL;
     }
     m->len = 0;
     return m;
@@ -22,7 +23,7 @@ HashMap *new_HashMap() {
 
 
 
-//AI generated hash fucntion
+//AI generated hash function
 unsigned long __hash(const char *str) {
     unsigned long hash = 5381;
     int c;
@@ -67,28 +68,29 @@ bool __grow_HashMap(HashMap *m) {
     return true;
 }
 
-
-
 bool insert_HashMap(HashMap *m, Str *s) {
     if (!m) {
         return false;
     }
-    double load = (double)m->size / m->len;
+    double load = (double)m->len / m->size;
+
     if (load >= 0.6) {
         __grow_HashMap(m);
     }
     int idx = __hash_Str(s, m->size);
     StrArray *bucket = m->strs[idx];
+
     if (bucket == NULL) {
         bucket = new_StrArray();
         if (!bucket)
             return false;
+        m->strs[idx] = bucket;
     }
-
     for (int i = 0; i < bucket->len; ++i) {
         if (strcmp(s->block, bucket->block[i]->block) == 0) {
             return false;
         }
+
     }
     if (!append_StrArray(bucket, s)) {
             return false;
