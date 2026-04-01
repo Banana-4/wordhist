@@ -40,6 +40,8 @@ int __hash_Str(Str *s, size_t range) {
 }
 
 bool __grow_HashMap(HashMap *m) {
+    if (!m)
+        return false;
     StrArray **new = realloc(m->strs, sizeof(StrArray *) * m->size * 2);
     if (!new) {
         return false;
@@ -48,18 +50,21 @@ bool __grow_HashMap(HashMap *m) {
         new[i] = NULL;
     size_t oldSize = m->size;
     StrArray **oldStrs = m->strs;
+    size_t oldLen = m->len;
     m->size = m->size * 2;
     m->strs = new;
-
+    m->len = 0;
     for (int i = 0; i < oldSize; ++i) {
         StrArray *bucket = oldStrs[i];
-        if (bucket) {
-          for (int j = 0; j < bucket->len; ++j) {
+
+        if (bucket != NULL) {
+            printf("Buck: %zu \n", bucket->size);
+            printf("Buck len: %zu", bucket->block[0]->size);
+            for (int j = 0; j < bucket->len; ++j) {
               if (!insert_HashMap(m, bucket->block[j])) {
-                //TODO: fix memory leak
-                m->strs = oldStrs;
-                m->size = oldSize;
-                return false;
+                  m->strs = oldStrs;
+                  m->size = oldSize;
+                  return false;
             }
           }
 
@@ -74,7 +79,7 @@ bool insert_HashMap(HashMap *m, Str *s) {
     }
     double load = (double)m->len / m->size;
 
-    if (load >= 0.6) {
+    if (load >= 0) {
         __grow_HashMap(m);
     }
     int idx = __hash_Str(s, m->size);
@@ -118,4 +123,5 @@ void del_HashMap(HashMap *m) {
         return;
     for(int i = 0; i < m->size; ++i)
         del_StrArray(m->strs[i]);
+    free(m);
 }
