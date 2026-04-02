@@ -42,12 +42,13 @@ int __hash_Str(Str *s, size_t range) {
 bool __grow_HashMap(HashMap *m) {
     if (!m)
         return false;
-    StrArray **new = realloc(m->strs, sizeof(StrArray *) * m->size * 2);
+    StrArray **new = (StrArray**)malloc(sizeof(StrArray *) * m->size * 2);
     if (!new) {
         return false;
     }
     for (int i = 0; i < m->size * 2; ++i)
         new[i] = NULL;
+
     size_t oldSize = m->size;
     StrArray **oldStrs = m->strs;
     size_t oldLen = m->len;
@@ -56,10 +57,7 @@ bool __grow_HashMap(HashMap *m) {
     m->len = 0;
     for (int i = 0; i < oldSize; ++i) {
         StrArray *bucket = oldStrs[i];
-
         if (bucket != NULL) {
-            printf("Buck: %zu \n", bucket->size);
-            printf("Buck len: %zu", bucket->block[0]->size);
             for (int j = 0; j < bucket->len; ++j) {
               if (!insert_HashMap(m, bucket->block[j])) {
                   m->strs = oldStrs;
@@ -67,7 +65,6 @@ bool __grow_HashMap(HashMap *m) {
                   return false;
             }
           }
-
         }
     }
     return true;
@@ -121,7 +118,8 @@ bool has_HashMap(HashMap *m, Str *s) {
 void del_HashMap(HashMap *m) {
     if (!m)
         return;
-    for(int i = 0; i < m->size; ++i)
-        del_StrArray(m->strs[i]);
+    for (int i = 0; i < m->size; ++i) {
+        free(m->strs[i]);
+    }
     free(m);
 }
