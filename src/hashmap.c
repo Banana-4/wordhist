@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#define LOAD 0.6
 
 HashMap *new_HashMap() {
     HashMap *m = (HashMap *)malloc(sizeof(HashMap));
@@ -76,7 +77,7 @@ bool insert_HashMap(HashMap *m, Str *s) {
     }
     double load = (double)m->len / m->size;
 
-    if (load >= 0) {
+    if (load >= LOAD) {
         __grow_HashMap(m);
     }
     int idx = __hash_Str(s, m->size);
