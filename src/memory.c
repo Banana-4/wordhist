@@ -1,7 +1,6 @@
 #include "../include/memory.h"
 #include <stdlib.h>
 #include <stdio.h>
-#define SIZE 8
 
 Array *new_Array() {
     Array *a = (Array *)malloc(sizeof(Array));
@@ -25,7 +24,7 @@ Str *new_Str() {
     }
     s->size = SIZE;
     s->len = 0;
-    s->block = (char*)malloc(sizeof(int) * s->size);
+    s->block = (char*)malloc(s->size);
     if (!s->block) {
         free(s);
         return NULL;
@@ -40,7 +39,7 @@ StrArray *new_StrArray() {
     }
     strs->size = SIZE;
     strs->len = 0;
-    strs->block = (Str**)malloc(sizeof(Str) * strs->size);
+    strs->block = (Str**)malloc(sizeof(Str*) * strs->size);
     if (!strs->block) {
         free(strs);
         return NULL;
