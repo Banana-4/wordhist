@@ -32,6 +32,7 @@ int input_loop(StrArray *words, int *h) {
             inword = true;
             buf = new_Str();
             if (!buf) {
+                del_HashMap(m);
                 return 1;
             }
         }
