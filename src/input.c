@@ -1,6 +1,5 @@
 #include "../include/input.h"
 #include <memory.h>
-#define COUNT 0
 
 int input_loop(StrArray *words, int *h) {
     bool inword = false;
