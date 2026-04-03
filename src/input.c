@@ -2,9 +2,8 @@
 #include <memory.h>
 #define COUNT 0
 
-int input_loop(StrArray *words, Array *lens, int *h) {
+int input_loop(StrArray *words, int *h) {
     bool inword = false;
-    int i = -1;
     *h = 0;
     Str *buf = NULL;
     int c;
@@ -17,12 +16,16 @@ int input_loop(StrArray *words, Array *lens, int *h) {
         if (inword && (!isalpha(c) && !isdigit(c) && c != '\'')) {
             inword = false;
             if(insert_HashMap(m, buf)) {
-                *h = *h < lens->block[i] ? lens->block[i] : *h;
+                if (*h < buf->len) {
+                    *h = buf->len;
+                }
                 if (!append_StrArray(words, buf)) {
                     del_HashMap(m);
                     del_Str(buf);
                     return 1;
                 }
+            } else {
+                del_Str(buf);
             }
         }
 
@@ -32,15 +35,8 @@ int input_loop(StrArray *words, Array *lens, int *h) {
             if (!buf) {
                 return 1;
             }
-            if (!append_Array(lens, COUNT)) {
-                del_HashMap(m);
-                del_Str(buf);
-                return 1;
-            }
-            ++i;
         }
         if (inword) {
-            lens->block[i]++;
             if (!append_Str(buf, c)) {
                 del_HashMap(m);
                 del_Str(buf);
@@ -51,7 +47,9 @@ int input_loop(StrArray *words, Array *lens, int *h) {
 
     if (inword) {
         if(insert_HashMap(m, buf)) {
-            *h = *h < lens->block[i] ? lens->block[i] : *h;
+            if (*h < buf->len) {
+                    *h = buf->len;
+                }
             if (!append_StrArray(words, buf)) {
                 del_HashMap(m);
                 del_Str(buf);
