@@ -5,4 +5,4 @@
 #include <stdlib.h>
 #include "memory.h"
 
-int input_loop(StrArray *words, Array *lens, int *h);
+int input_loop(StrArray *words, int *h);
