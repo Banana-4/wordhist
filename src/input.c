@@ -1,5 +1,4 @@
 #include "../include/input.h"
-#include <memory.h>
 
 int input_loop(StrArray *words, int *h) {
     bool inword = false;
