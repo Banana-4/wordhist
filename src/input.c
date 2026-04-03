@@ -55,6 +55,8 @@ int input_loop(StrArray *words, int *h) {
                 del_Str(buf);
                 return 1;
             }
+        } else {
+            del_Str(buf);
         }
     }
     del_HashMap(m);
