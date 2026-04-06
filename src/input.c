@@ -1,6 +1,6 @@
 #include "../include/input.h"
 
-int input_loop(StrArray *words, int *h) {
+int input_loop(StrArray **words, int *h) {
     bool inword = false;
     *h = 0;
     Str *buf = NULL;
@@ -17,13 +17,10 @@ int input_loop(StrArray *words, int *h) {
                 if (*h < buf->len) {
                     *h = buf->len;
                 }
-                if (!append_StrArray(words, buf)) {
-                    del_HashMap(m);
-                    del_Str(buf);
-                    return 1;
-                }
+                buf = NULL;
             } else {
                 del_Str(buf);
+                buf = NULL;
             }
         }
 
@@ -48,16 +45,14 @@ int input_loop(StrArray *words, int *h) {
         if(insert_HashMap(m, buf)) {
             if (*h < buf->len) {
                     *h = buf->len;
-                }
-            if (!append_StrArray(words, buf)) {
-                del_HashMap(m);
-                del_Str(buf);
-                return 1;
             }
-        } else {
+            buf = NULL;
+            } else {
             del_Str(buf);
+            buf = NULL;
         }
     }
+    *words = transfer_data(m);
     del_HashMap(m);
     return 0;
 }
