@@ -1,7 +1,7 @@
 #pragma once
 #include <stdlib.h>
 #include <stdbool.h>
-#define SIZE 8
+#define SIZE 4
 
 typedef struct {
     size_t len;
@@ -25,7 +25,8 @@ typedef struct {
 typedef struct {
     size_t len;
     size_t size;
-    StrArray **strs;
+    Array **idxs;
+    StrArray *strs;
 }HashMap;
 
 Array *new_Array();
