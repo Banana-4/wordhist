@@ -39,6 +39,7 @@ bool append_Str(Str *s, char c);
 bool append_StrArray(StrArray *strs, Str *s);
 
 bool insert_HashMap(HashMap *m, Str *s);
+StrArray *transfer_data(HashMap *m);
 
 void del_Array(Array *a);
 void del_Str(Str *s);
