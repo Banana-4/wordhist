@@ -143,12 +143,22 @@ bool insert_HashMap(HashMap *m, Str *s) {
     return true;
 }
 
+StrArray *transfer_data(HashMap *m) {
+    if (!m) {
+        return NULL;
+    }
+    StrArray *data = m->strs;
+    m->strs = NULL;
+    return data;
+}
+
 void del_HashMap(HashMap *m) {
     if (!m)
         return;
     for (int i = 0; i < m->size; ++i) {
         del_Array(m->idxs[i]);
     }
+    del_StrArray(m->strs);
     free(m->idxs);
     free(m);
 }
