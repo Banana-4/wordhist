@@ -10,7 +10,7 @@ int main() {
         return 1;
     }
     int h = 0;
-    int signal = input_loop(words, &h);
+    int signal = input_loop(&words, &h);
     if (signal == 1) {
         fprintf(stderr, "Critical error exiting...\n");
         del_StrArray(words);
