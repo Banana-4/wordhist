@@ -38,16 +38,16 @@ typedef struct {
 Array *new_Array();
 Str *new_Str();
 StrArray *new_StrArray();
-StrArrayBuilder *new_HashMap();
+StrArrayBuilder *new_StrArrayBuilder();
 
 bool append_Array(Array *a, int n);
 bool append_Str(Str *s, char c);
 bool append_StrArray(StrArray *strs, Str *s);
 
-MEM_ERRORS insert_StrArrayBuilder(StrArrayBuilder *m, Str *s);
-StrArray *transfer_data(StrArrayBuilder *m);
+MEM_ERRORS insert_StrArrayBuilder(StrArrayBuilder *b, Str *s);
+StrArray *transfer_data(StrArrayBuilder *b);
 
 void del_Array(Array *a);
 void del_Str(Str *s);
 void del_StrArray(StrArray *str);
-void del_StrArrayBuilder(StrArrayBuilder *m);
+void del_StrArrayBuilder(StrArrayBuilder *b);
