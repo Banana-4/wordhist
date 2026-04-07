@@ -5,28 +5,28 @@
 #define LOAD 0.6
 
 StrArrayBuilder *new_StrArrayBuilder() {
-    StrArrayBuilder *m = (StrArrayBuilder*) malloc(sizeof(StrArrayBuilder));
-    if (!m) {
+    StrArrayBuilder *b = (StrArrayBuilder*) malloc(sizeof(StrArrayBuilder));
+    if (!b) {
         return NULL;
     }
-    m->size = SIZE;
-    m->strs = new_StrArray();
+    b->size = SIZE;
+    b->strs = new_StrArray();
 
-    if (!m->strs) {
-        free(m);
+    if (!b->strs) {
+        free(b);
         return NULL;
     }
 
-    m->idxs = (Array **)malloc(sizeof(Array *) * m->size);
-    if (!m->idxs) {
-        del_StrArray(m->strs);
+    b->idxs = (Array **)malloc(sizeof(Array *) * b->size);
+    if (!b->idxs) {
+        del_StrArray(b->strs);
         return NULL;
     }
-    for (int i = 0; i < m->size; ++i) {
-        m->idxs[i] = NULL;
+    for (int i = 0; i < b->size; ++i) {
+        b->idxs[i] = NULL;
     }
-    m->len = 0;
-    return m;
+    b->len = 0;
+    return b;
 }
 
 
@@ -49,10 +49,10 @@ int __hash_Str(Str *s, size_t range) {
   return __hash(s->block) % range;
 }
 
-bool __grow_HashMap(StrArrayBuilder *m) {
-    if (!m)
+bool __grow_HashMap(StrArrayBuilder *b) {
+    if (!b)
         return false;
-    size_t new_size = m->size * 2;
+    size_t new_size = b->size * 2;
     Array **new_idxs = (Array**)malloc(sizeof(Array *) * new_size);
     if (!new_idxs) {
         return false;
@@ -64,8 +64,8 @@ bool __grow_HashMap(StrArrayBuilder *m) {
     // Rehashing
     //////////////////////////
 
-    for (int i = 0; i < m->len; ++i) {
-        int idx = __hash_Str(m->strs->block[i], new_size);
+    for (int i = 0; i < b->len; ++i) {
+        int idx = __hash_Str(b->strs->block[i], new_size);
         if (!new_idxs[idx]) {
             Array *bucket = new_Array();
             if (!bucket) {
@@ -83,12 +83,12 @@ bool __grow_HashMap(StrArrayBuilder *m) {
     // Old memory cleanup
     /////////////////////////
 
-    for (int i = 0; i < m->size; ++i) {
-        del_Array(m->idxs[i]);
+    for (int i = 0; i < b->size; ++i) {
+        del_Array(b->idxs[i]);
     }
-    free(m->idxs);
-    m->idxs = new_idxs;
-    m->size = new_size;
+    free(b->idxs);
+    b->idxs = new_idxs;
+    b->size = new_size;
     return true;
 
     //////////////////////////
@@ -103,20 +103,20 @@ bool __grow_HashMap(StrArrayBuilder *m) {
 }
 
 
-MEM_ERRORS insert_StrArrayBuilder(StrArrayBuilder *m, Str *s) {
-    if (!m) {
+MEM_ERRORS insert_StrArrayBuilder(StrArrayBuilder *b, Str *s) {
+    if (!b) {
         return false;
     }
 
-    double load = (double)m->len / m->size;
+    double load = (double)b->len / b->size;
 
     if (load >= LOAD) {
-        if (!__grow_HashMap(m))
+        if (!__grow_HashMap(b))
             return MEM_ERR;
     }
 
-    int idx = __hash_Str(s, m->size);
-    Array *bucket = m->idxs[idx];
+    int idx = __hash_Str(s, b->size);
+    Array *bucket = b->idxs[idx];
 
     //////////////////////
     // create new bucket if needed
@@ -125,7 +125,7 @@ MEM_ERRORS insert_StrArrayBuilder(StrArrayBuilder *m, Str *s) {
         bucket = new_Array();
         if (!bucket)
             return MEM_ERR;
-        m->idxs[idx] = bucket;
+        b->idxs[idx] = bucket;
     }
 
     /////////////////////////
@@ -133,45 +133,45 @@ MEM_ERRORS insert_StrArrayBuilder(StrArrayBuilder *m, Str *s) {
     /////////////////////////
     for (int i = 0; i < bucket->len; ++i) {
         int idx = bucket->block[i];
-        if (strcmp(s->block, m->strs->block[idx]->block) == 0) {
+        if (strcmp(s->block, b->strs->block[idx]->block) == 0) {
             return DUP_ERR;
         }
     }
 
-    if (!append_StrArray(m->strs, s)) {
+    if (!append_StrArray(b->strs, s)) {
             return MEM_ERR;
     }
 
-    if (!append_Array(bucket, m->strs->len - 1)) {
-        --m->strs->len;
-        del_Str(m->strs->block[m->len]);
+    if (!append_Array(bucket, b->strs->len - 1)) {
+        --b->strs->len;
+        del_Str(b->strs->block[b->len]);
         return MEM_ERR;
     }
-    m->len++;
+    b->len++;
     return NO_ERR;
 }
 
-StrArray *transfer_data(StrArrayBuilder *m) {
-    if (!m) {
+StrArray *transfer_data(StrArrayBuilder *b) {
+    if (!b) {
         return NULL;
     }
-    StrArray *data = m->strs;
+    StrArray *data = b->strs;
 
     //////////////////////////////////////
     // Ensure safe destruction of builder
     //////////////////////////////////////
 
-    m->strs = NULL;
+    b->strs = NULL;
     return data;
 }
 
-void del_StrArrayBuilder(StrArrayBuilder *m) {
-    if (!m)
+void del_StrArrayBuilder(StrArrayBuilder *b) {
+    if (!b)
         return;
-    for (int i = 0; i < m->size; ++i) {
-        del_Array(m->idxs[i]);
+    for (int i = 0; i < b->size; ++i) {
+        del_Array(b->idxs[i]);
     }
-    del_StrArray(m->strs);
-    free(m->idxs);
-    free(m);
+    del_StrArray(b->strs);
+    free(b->idxs);
+    free(b);
 }
