@@ -2,18 +2,19 @@
 #include <memory.h>
 
 bool __process_string(HashMap *m, Str *str, int *h) {
-    if(insert_HashMap(m, str)) {
+    MEM_ERRORS err = insert_HashMap(m, str);
+    if(err == NO_ERR) {
                 if (*h < str->len) {
                     *h = str->len;
                 }
                 str = NULL;
                 return true;
-            } else {
+            } else if (err == MEM_ERR){
                 del_Str(str);
                 str = NULL;
                 return false;
-            }
-
+    }
+    return true;
 }
 
 int input_loop(StrArray **words, int *h) {
