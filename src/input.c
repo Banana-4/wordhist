@@ -1,8 +1,8 @@
 #include "../include/input.h"
 #include <memory.h>
 
-bool __process_string(HashMap *m, Str *str, int *h) {
-    MEM_ERRORS err = insert_HashMap(m, str);
+bool __process_string(StrArrayBuilder *m, Str *str, int *h) {
+    MEM_ERRORS err = insert_StrArrayBuilder(m, str);
     if(err == NO_ERR) {
                 if (*h < str->len) {
                     *h = str->len;
@@ -22,7 +22,7 @@ int input_loop(StrArray **words, int *h) {
     *h = 0;
     Str *buf = NULL;
     int c;
-    HashMap *m = new_HashMap();
+    StrArrayBuilder *m = new_HashMap();
     if (!m) {
         return 1;
     }
@@ -37,13 +37,13 @@ int input_loop(StrArray **words, int *h) {
             inword = true;
             buf = new_Str();
             if (!buf) {
-                del_HashMap(m);
+                del_StrArrayBuilder(m);
                 return 1;
             }
         }
         if (inword) {
             if (!append_Str(buf, c)) {
-                del_HashMap(m);
+                del_StrArrayBuilder(m);
                 del_Str(buf);
                 return 1;
             }
@@ -55,6 +55,6 @@ int input_loop(StrArray **words, int *h) {
     }
 
     *words = transfer_data(m);
-    del_HashMap(m);
+    del_StrArrayBuilder(m);
     return 0;
 }
