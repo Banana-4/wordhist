@@ -3,6 +3,12 @@
 #include <stdbool.h>
 #define SIZE 4
 
+typedef enum {
+  NO_ERR,
+  MEM_ERR,
+  DUP_ERR,
+} MEM_ERRORS;
+
 typedef struct {
     size_t len;
     size_t size;
@@ -38,7 +44,7 @@ bool append_Array(Array *a, int n);
 bool append_Str(Str *s, char c);
 bool append_StrArray(StrArray *strs, Str *s);
 
-bool insert_HashMap(HashMap *m, Str *s);
+MEM_ERRORS insert_HashMap(HashMap *m, Str *s);
 StrArray *transfer_data(HashMap *m);
 
 void del_Array(Array *a);
