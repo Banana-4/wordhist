@@ -103,7 +103,7 @@ bool __grow_HashMap(HashMap *m) {
 }
 
 
-bool insert_HashMap(HashMap *m, Str *s) {
+MEM_ERRORS insert_HashMap(HashMap *m, Str *s) {
     if (!m) {
         return false;
     }
@@ -111,7 +111,7 @@ bool insert_HashMap(HashMap *m, Str *s) {
 
     if (load >= LOAD) {
         if (!__grow_HashMap(m))
-            return false;
+            return MEM_ERR;
     }
 
     int idx = __hash_Str(s, m->size);
@@ -120,27 +120,27 @@ bool insert_HashMap(HashMap *m, Str *s) {
     if (bucket == NULL) {
         bucket = new_Array();
         if (!bucket)
-            return false;
+            return MEM_ERR;
         m->idxs[idx] = bucket;
     }
     for (int i = 0; i < bucket->len; ++i) {
         int idx = bucket->block[i];
         if (strcmp(s->block, m->strs->block[idx]->block) == 0) {
-            return false;
+            return DUP_ERR;
         }
 
     }
     if (!append_StrArray(m->strs, s)) {
-            return false;
+            return MEM_ERR;
     }
 
     if (!append_Array(bucket, m->strs->len - 1)) {
         --m->strs->len;
         del_Str(m->strs->block[m->len]);
-        return false;
+        return MEM_ERR;
     }
     m->len++;
-    return true;
+    return NO_ERR;
 }
 
 StrArray *transfer_data(HashMap *m) {
