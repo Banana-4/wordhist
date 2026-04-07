@@ -17,14 +17,14 @@ bool __process_string(StrArrayBuilder *builder, Str *str, int *h) {
     return true;
 }
 
-int input_loop(StrArray **words, int *h) {
+INP_ERR input_loop(StrArray **words, int *h) {
     bool inword = false;
     *h = 0;
     Str *buf = NULL;
     int c;
     StrArrayBuilder *builder = new_StrArrayBuilder();
     if (!builder) {
-        return 1;
+        return INP_MEM_FAIL;
     }
 
     while ((c = getchar()) != EOF) {
@@ -38,14 +38,14 @@ int input_loop(StrArray **words, int *h) {
             buf = new_Str();
             if (!buf) {
                 del_StrArrayBuilder(builder);
-                return 1;
+                return INP_MEM_FAIL;
             }
         }
         if (inword) {
             if (!append_Str(buf, c)) {
                 del_StrArrayBuilder(builder);
                 del_Str(buf);
-                return 1;
+                return INP_MEM_FAIL;
             }
         }
     }
@@ -56,5 +56,5 @@ int input_loop(StrArray **words, int *h) {
 
     *words = transfer_data(builder);
     del_StrArrayBuilder(builder);
-    return 0;
+    return INP_NO_ERR;
 }
