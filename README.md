@@ -1,133 +1,88 @@
 # Word Histogram program
 
 ## About
-This is a simple UNIX-like utility program for outputing a histogram of word lengths.
-The goal of this project is to demonstrate skills:
-1. Making programs that can be composed.
-2. Safe memory managment.
-3. Data stream processing.
-4. Iterative development cycle.
+This is a simple UNIX-like utility program for outputing a histogram of words lengths from input stream.
+The inspiration for the program comes from the K&R exercise word histogram.
 
-## Design
-This program is based on the exercise from K&R word histogram.
-The program is focused on doing one thing only converting the words in its input into a histogram of word lengths.
+### The goals of this project are:
+1. Iterative program building. 
+2. Working safely with memory.
+3. Designing program architecture.
+4. API Design.
+5. Practicing data structures and algorithms.
+6. Clean documentation of code.
 
-The program needs to:
-1. Read and process a character stream input. Parse the input.
-2. Store the words and theire lengths in memory.
-3. Output a histogram of words lengths with the list of unique words in its input.
+## Word Definition:
+A word is any character sequence that starts with a letter that contains only letter, digits and '. 
+There is no word boundry checks, its not check if a word is between two blank characters. 
 
-The program has three core parts, modules:
-1. Input processing. Responsible for reading and parsing the character stream.
-2. Memory managment. Responsible for safely and efficently storing the computated data.
-3. Histogram output. Responsible for transforming words lengths into a histogram.
+Do to the lack of boundry checks any character sequence that matches the defintion is considered a word. 
+Examples:
+1. 11111hello### - hello is a word
+2. 1can't - is a word.
+3. asdsdxzcvwedfdsf23123'23213 is a word.
 
-While designing this program I took inspiration from K&R principles and dr. Chuck.
-Following those principles I designed the program using a iterative loop:
-1. Define the responsibilities of the program.
-2. Make it work.
-3. Make it correct.
-4. Simplify.
-5. Analyze.
-6. Do it again.
+## Design:
+The program was developed iteratively through multiple architectural stages:
 
-Constrains:
-1. Handle inputs of unknow size.
-2. Memory safe.
-3. Process only unique words.
-4. Time complexity O(n).
-5. Memory complexity O(n).
+``` text
+static arrays and input processing -> dynamic memory -> hash map for removing duplicate words -> string array builder for collecting words from input 
 
-The program is modular in design, made from composable parts. This is done to support the iterative development loop for ease of changes.
+```
 
-## Modules:
-The design of modules reflect the way the data is used and process in the program.
+The goal of the design process was to develope a compossible program architecture.
+The program is made from modules:
+1. Memory - responsible for dynamic memory and string array building.
+2. Input - handles parsing input and storing words.
+3. Histogram - handles the creation and output of the histogram.
+4. Main - cordinates the other modules and owns the built StrArray.
 
-### Memory:
-Dynamic memory management subsystem. 
+Note:
+The StrArrayBuilder should be semantically a separate module it builds a unique words str array, but internaly it performs data storage, memory management using dynamic arrays and uses a hashing algorithm. Because interanly it handles data storage I place it inside the memory module. 
 
-Responsibilities:
-1. Providing dynamic memory data structures for storing processed words from a input stream.
-2. Safe dynamic memory usage.
+## Enginers Log:
 
-This module solves the problem of storing arbitrary amounts of processed data from a input stream.
-The solution uses dynamic arrays and hash maps.
+### First iteration - static memory
+In the first iteration the goal is to have a simple working version of the program. The data is stored in static arrays and the whole program is one monolithic main function.
+In this version I verified my initial idea of how the program whould work, what are the individual steps needed to transform input stream into a words length histogram.
+From this first version the pipeline is:
+1. Allocate and initilaze static memory to hold the program data.
+2. Process input
+3. Output histogram
 
-The design of the module takes into account how the programm process the data and tries to meet those requirments. 
+### Second iteration - dynamic memory and module separation
+The first iteration showed me how should the program needs to be organized.
+The modules are:
+1. Memory.
+2. Input. 
+3. Histogram.
+In this iteration i broke the program into individual modules and implemented dynamic arrays.
 
-Program data requirements:
-1. Arbitary amount of character stream data from stdin or redirect to stdin from other sources.
-2. Storage of words, strings, of various sizes.
-3. Storage of the lengths of the words as ints, the number of words is not know before the stream is processed.
-4. The program process only unique words.
-4. Ideal space complexity O(n)
-5. Ideal time complexity O(n).
+### Third iteration - hash map and unique words.
+After getting a basic random size input processing program it was time to handle the problem of processing only unique words from the input.
+The solution was to use a lookup table, hash map. This iteration showed me that doing iterative design and breaking into modules is very powerfull, it allowed me to do minimal changes and reuse code to implement a new functionalty.
+The program now handles:
+1. arbitrary amount of data from input.
+2. unique words.
 
-The data structures support only the operations needed by the program. The data structurs in this module are designed to meet the constrains of the program.
+### Forth iteration - StrArrayBuilder
 
-Data Structures:
-1. Dynamic Arrays:
-- Array for storing integers. 
-- Str for storing char *.
-- StrArray for storing Str.
+From the third iteration I was left with a lot of duplicate data stored, word lengths where both in the strings and in the dynamic integer array. Strings where stored both in a string array and the hash map.
+Memory ownership was spread across diffrent data structures. The API design needed improvements.
+There where no precisely defined invariants.
+The first and obvious solution was to remove the dynamic array that stored word lengths.
 
-2. Hash Map - data structure used for building the StrArray from processed input.
+The second thing I did is define the invariants:
+1. There are no duplicate words in the StrArray.
+2. StrArrayBuilder owns the StrArray while the input is processing.
+3. Strings are owned by the StrArray.
+4. If the input stream cant be processed the program stops and reprots a error.
 
-The starting size of all data structures is 4 and the growth factor is 2. That is done to make the data structures uniform and to provide a good time and space complexity.
+The third solution was to implement a string array builder that would build a unique words array and than transfer the array ownership to the main function. For that purpose i decided to reuse the hash map using ideas from the python dictonary implementation.
+The python dict uses two arrays:
+1. key-value array.
+2. Hash array that stores the index of the key in the key-value pair at the hashed position of the key.
 
-#### Dynamic Arrays
-The dynamic arrays use the standard text book design. 
-A struct that keeps track of the allocated size, and used slots,length and holds the pointer to the allocated memory block.
+This give me the idea to use a hash map inside the string builder that uses words as the keys and indexes into the StrArray as the values.
+Doing this cleanly allowed the StrArrayBuilder to maintain unique words and build a StrArray effectivly.
 
-The arrays lazy grow when appending.
-
-There are three implementaions of the Dynamic Arrays based on what data is stored:
-1. Array - array for holding integers represnting word lengths.
-2. Str - for storing character strings, words.
-3. StrArray - a array of Str. This data strucure owns the Strs.
-
-The implementations are very similiar, the only difference is how Str handles appending it needs to handle appending the terminator of strings '\0'.
-
-The data stored in the array is never removed and after the input is processed the arrays never change.
-
-All arrays support the following operations:
-1. constructing - initialization and allocation of the array struct.
-2. appending - adding a new element to the end of the array.
-3. deletion - for safe freeing of all allocated dynamic memory. 
-
-#### Hash Map:
-The hash map is responsible for building a unique words StrArray.
-The keys and values in this problem are the same a Str. In that way the hash map is like the python set.
-
-The hash map design is inspired by the implementation of the python dict but unlike the dict the hash map uses separate chaining collision resolution method. 
-
-The hash map uses sparse and dense memory stores. 
-The sparse store is idxs, the Array data structure that is used for the hashing. The idxs stores the indexes to the keys in the StrArray.
-The dense memory store is the StrArray. This data structure is used to store the keys.
-
-The hash algorithm is AI generated and is djb2 by Daniel J. Bernstein.
-
-Supported operations:
-1. Construction - allocation and initialization of the hash map struct.
-2. insert - adding a new key to the hash map.
-3. has - checking if the map contains a key.
-4. deletion - free only the memory used by the hashmap struct, it does not owns the memory of Str.
-5. grow - grows the hash map to keep the load factor low.
-
-##### Operations:
-
-###### __grow_HashMap(HashMap *m):
-This operation is responsible for growing the hash map when the load factor exceeds the load limit.
-The operation is desigend to be exception safe, the hash map is mutated only if there are no errors.
-
-The operation changes:
-1. idxs - grows the indexs array and rehashes the keys.
-2. size - doubles the size.
-
-The cleanup code is grouped in the labeled block for reducing code duplication and giving better structure.
-
-### Stream Processing:
-2. Stream Processing - This module uses a simple defenition of a word to classifie the input chracters, a word is any char sequence that starts with a letter has only numbers letters and apostrophes and has no blanks.
-
-### Histogram:
-3. Output - This module takes the words and theire lengths, transforms lengths into a vertical histogram and outputs the list of words with their lengths.
