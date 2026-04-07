@@ -33,21 +33,21 @@ typedef struct {
     size_t size;
     Array **idxs;
     StrArray *strs;
-}HashMap;
+}StrArrayBuilder;
 
 Array *new_Array();
 Str *new_Str();
 StrArray *new_StrArray();
-HashMap *new_HashMap();
+StrArrayBuilder *new_HashMap();
 
 bool append_Array(Array *a, int n);
 bool append_Str(Str *s, char c);
 bool append_StrArray(StrArray *strs, Str *s);
 
-MEM_ERRORS insert_HashMap(HashMap *m, Str *s);
-StrArray *transfer_data(HashMap *m);
+MEM_ERRORS insert_StrArrayBuilder(StrArrayBuilder *m, Str *s);
+StrArray *transfer_data(StrArrayBuilder *m);
 
 void del_Array(Array *a);
 void del_Str(Str *s);
 void del_StrArray(StrArray *str);
-void del_HashMap(HashMap *m);
+void del_StrArrayBuilder(StrArrayBuilder *m);
