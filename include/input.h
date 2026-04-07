@@ -4,5 +4,9 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include "memory.h"
+typedef enum {
+INP_NO_ERR,
+INP_MEM_FAIL,
+}INP_ERR;
 
-int input_loop(StrArray *words, int *h);
+INP_ERR input_loop(StrArray **words, int *h);
