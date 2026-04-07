@@ -4,8 +4,8 @@
 #include <stdio.h>
 #define LOAD 0.6
 
-HashMap *new_HashMap() {
-    HashMap *m = (HashMap *)malloc(sizeof(HashMap));
+StrArrayBuilder *new_StrArrayBuilder() {
+    StrArrayBuilder *m = (StrArrayBuilder*) malloc(sizeof(StrArrayBuilder));
     if (!m) {
         return NULL;
     }
@@ -49,7 +49,7 @@ int __hash_Str(Str *s, size_t range) {
   return __hash(s->block) % range;
 }
 
-bool __grow_HashMap(HashMap *m) {
+bool __grow_HashMap(StrArrayBuilder *m) {
     if (!m)
         return false;
     size_t new_size = m->size * 2;
@@ -103,10 +103,11 @@ bool __grow_HashMap(HashMap *m) {
 }
 
 
-MEM_ERRORS insert_HashMap(HashMap *m, Str *s) {
+MEM_ERRORS insert_StrArrayBuilder(StrArrayBuilder *m, Str *s) {
     if (!m) {
         return false;
     }
+
     double load = (double)m->len / m->size;
 
     if (load >= LOAD) {
@@ -117,19 +118,26 @@ MEM_ERRORS insert_HashMap(HashMap *m, Str *s) {
     int idx = __hash_Str(s, m->size);
     Array *bucket = m->idxs[idx];
 
+    //////////////////////
+    // create new bucket if needed
+    /////////////////////
     if (bucket == NULL) {
         bucket = new_Array();
         if (!bucket)
             return MEM_ERR;
         m->idxs[idx] = bucket;
     }
+
+    /////////////////////////
+    // Enforce unique strings
+    /////////////////////////
     for (int i = 0; i < bucket->len; ++i) {
         int idx = bucket->block[i];
         if (strcmp(s->block, m->strs->block[idx]->block) == 0) {
             return DUP_ERR;
         }
-
     }
+
     if (!append_StrArray(m->strs, s)) {
             return MEM_ERR;
     }
@@ -143,16 +151,21 @@ MEM_ERRORS insert_HashMap(HashMap *m, Str *s) {
     return NO_ERR;
 }
 
-StrArray *transfer_data(HashMap *m) {
+StrArray *transfer_data(StrArrayBuilder *m) {
     if (!m) {
         return NULL;
     }
     StrArray *data = m->strs;
+
+    //////////////////////////////////////
+    // Ensure safe destruction of builder
+    //////////////////////////////////////
+
     m->strs = NULL;
     return data;
 }
 
-void del_HashMap(HashMap *m) {
+void del_StrArrayBuilder(StrArrayBuilder *m) {
     if (!m)
         return;
     for (int i = 0; i < m->size; ++i) {
