@@ -1,18 +1,21 @@
 #include "../include/input.h"
 #include <memory.h>
 
-bool __process_string(StrArrayBuilder *builder, Str *str, int *h) {
-    MEM_ERRORS err = insert_StrArrayBuilder(builder, str);
+bool _sab_process_string(StrArrayBuilder *builder, Str **str, int *h) {
+    MEM_ERRORS err = insert_StrArrayBuilder(builder, *str);
     if(err == NO_ERR) {
-                if (*h < str->len) {
-                    *h = str->len;
-                }
-                str = NULL;
-                return true;
-            } else if (err == MEM_ERR){
-                del_Str(str);
-                str = NULL;
-                return false;
+        if (*h < (*str)->len) {
+            *h = (*str)->len;
+        }
+        str = NULL;
+        return true;
+    } else if (err == MEM_ERR){
+        del_Str(*str);
+        *str = NULL;
+        return false;
+    } else if (err == DUP_ERR) {
+        del_Str(*str);
+        *str = NULL;
     }
     return true;
 }
@@ -30,7 +33,10 @@ INP_ERR input_loop(StrArray **words, int *h) {
     while ((c = getchar()) != EOF) {
         if (inword && (!isalpha(c) && !isdigit(c) && c != '\'')) {
             inword = false;
-            __process_string(builder, buf, h);
+            if (!_sab_process_string(builder, &buf, h)) {
+                del_StrArrayBuilder(builder);
+                return INP_MEM_FAIL;
+            }
         }
 
         else if (inword == false && isalpha(c)) {
@@ -51,7 +57,10 @@ INP_ERR input_loop(StrArray **words, int *h) {
     }
 
     if (inword) {
-        __process_string(builder, buf, h);
+        if (!_sab_process_string(builder, &buf, h)) {
+            del_StrArrayBuilder(builder);
+            return INP_MEM_FAIL;
+      }
     }
 
     *words = transfer_data(builder);
