@@ -20,6 +20,7 @@ StrArrayBuilder *new_StrArrayBuilder() {
     b->idxs = (Array **)malloc(sizeof(Array *) * b->size);
     if (!b->idxs) {
         del_StrArray(b->strs);
+        free(b);
         return NULL;
     }
     for (int i = 0; i < b->size; ++i) {
