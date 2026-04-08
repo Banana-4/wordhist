@@ -1,3 +1,4 @@
+#include "include/error_codes.h"
 #include "include/histogram.h"
 #include "include/input.h"
 #include "include/memory.h"
@@ -9,8 +10,8 @@ int main() {
     return 1;
   }
   int h = 0;
-  INP_ERR signal = input_loop(&words, &h);
-  if (signal == INP_MEM_FAIL) {
+  ERROR_CODES signal = input_loop(&words, &h);
+  if (signal == ALLOCATION_FAIL) {
     fprintf(stderr, "Critical error exiting...\n");
     del_StrArray(words);
     exit(signal);
