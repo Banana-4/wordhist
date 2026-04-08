@@ -47,77 +47,85 @@ StrArray *new_StrArray() {
     return strs;
 }
 
-bool _grow_Array(Array *a) {
+ERROR_CODES _grow_Array(Array *a) {
+    if (!a)
+        return NULL_ARGUMENT;
     size_t size = a->size * 2;
     int *new = realloc(a->block, sizeof(int) * size);
     if (!new) {
-        return false;
+        return ALLOCATION_FAIL;
     }
     a->size = size;
     a->block = new;
-    return true;
+    return ALL_GOOD;
 }
 
-bool _grow_Str(Str *s) {
+ERROR_CODES _grow_Str(Str *s) {
+    if (!s) {
+        return NULL_ARGUMENT;
+    }
     size_t size = s->size * 2;
     char *new = realloc(s->block, size);
     if (!new) {
-        return false;
+        return ALLOCATION_FAIL;
     }
     s->size = size;
     s->block = new;
-    return true;
+    return ALL_GOOD;
 }
 
-bool _grow_StrArray(StrArray *strs) {
+ERROR_CODES _grow_StrArray(StrArray *strs) {
+    if (!strs) {
+      return NULL_ARGUMENT;
+    }
     size_t size = strs->size * 2;
     Str **new = realloc(strs->block, sizeof(Str*) * size);
     if (!new) {
-        return false;
+        return ALLOCATION_FAIL;
     }
     strs->size = size;
     strs->block = new;
-    return true;
+    return ALL_GOOD;
 }
 
-bool append_Array(Array *a, int n) {
+ERROR_CODES append_Array(Array *a, int n) {
     if (!a) {
-        return false;
+        return NULL_ARGUMENT;
     }
     if (a->len + 1 > a->size) {
-        if (!_grow_Array(a)) {
-            return false;
+        if (_grow_Array(a) != ALL_GOOD) {
+            return ALLOCATION_FAIL;
         }
     }
     a->block[a->len++] = n;
-    return true;
+    return ALL_GOOD;
 }
 
-bool append_Str(Str *s, char c) {
+ERROR_CODES append_Str(Str *s, char c) {
     if (!s) {
-        return false;
+        return NULL_ARGUMENT;
     }
     if (s->len + 1 >= s->size) {
-        if (!_grow_Str(s)) {
-            return false;
+        if (_grow_Str(s) != ALL_GOOD) {
+            return ALLOCATION_FAIL;
         }
     }
     s->block[s->len++] = c;
     s->block[s->len] = '\0';
-    return true;
+    return ALL_GOOD;
 }
 
-bool append_StrArray(StrArray *strs, const Str *s) {
+ERROR_CODES append_StrArray(StrArray *strs, Str *s) {
      if (!strs) {
-        return false;
+        return NULL_ARGUMENT;
     }
     if (strs->len + 1 > strs->size) {
-        if (!_grow_StrArray(strs)) {
-            return false;
+        if (_grow_StrArray(strs) != ALL_GOOD) {
+            return ALLOCATION_FAIL;
         }
     }
     strs->block[strs->len++] = s;
-    return true;
+    return ALL_GOOD;
 }
 
 void del_Array(Array *a) {
