@@ -34,7 +34,7 @@ StrArrayBuilder *new_StrArrayBuilder() {
 // AI generated hash function
 /////////////////////////////
 
-unsigned long __hash(const char *str) {
+unsigned long _hash(const char *str) {
     unsigned long hash = 5381;
     int c;
 
@@ -45,17 +45,17 @@ unsigned long __hash(const char *str) {
     return hash;
 }
 
-int __hash_Str(Str *s, size_t range) {
-  return __hash(s->block) % range;
+int _hash_Str(const Str *s, size_t range) {
+  return _hash(s->block) % range;
 }
 
-bool __grow_HashMap(StrArrayBuilder *b) {
+ERROR_CODES _grow_HashMap(StrArrayBuilder *b) {
     if (!b)
-        return false;
+        return NULL_ARGUMENT;
     size_t new_size = b->size * 2;
     Array **new_idxs = (Array**)malloc(sizeof(Array *) * new_size);
     if (!new_idxs) {
-        return false;
+        return ALLOCATION_FAIL;
     }
     for (int i = 0; i < new_size; ++i)
         new_idxs[i] = NULL;
@@ -65,7 +65,7 @@ bool __grow_HashMap(StrArrayBuilder *b) {
     //////////////////////////
 
     for (int i = 0; i < b->len; ++i) {
-        int idx = __hash_Str(b->strs->block[i], new_size);
+        int idx = _hash_Str(b->strs->block[i], new_size);
         if (!new_idxs[idx]) {
             Array *bucket = new_Array();
             if (!bucket) {
@@ -74,7 +74,7 @@ bool __grow_HashMap(StrArrayBuilder *b) {
             new_idxs[idx] = bucket;
         }
 
-        if (!append_Array(new_idxs[idx], i)) {
+        if (append_Array(new_idxs[idx], i) != ALL_GOOD) {
             goto grow_cleanup;
         }
     }
@@ -89,7 +89,7 @@ bool __grow_HashMap(StrArrayBuilder *b) {
     free(b->idxs);
     b->idxs = new_idxs;
     b->size = new_size;
-    return true;
+    return ALL_GOOD;
 
     //////////////////////////
     // Error Handling
@@ -99,56 +99,63 @@ bool __grow_HashMap(StrArrayBuilder *b) {
         for (int i = 0; i < new_size; ++i)
             del_Array(new_idxs[i]);
         free(new_idxs);
-        return false;
+        return ALLOCATION_FAIL;
 }
 
 
-MEM_ERRORS insert_StrArrayBuilder(StrArrayBuilder *b, Str *s) {
+ERROR_CODES insert_StrArrayBuilder(StrArrayBuilder *b, Str *s) {
+
+    ////////////////////////////
+    // If inserted s is owned by StrArrayBuilder, until than it is owned by the calling function
+    ////////////////////////////
+
     if (!b) {
-        return false;
+        return NULL_ARGUMENT;
     }
 
     double load = (double)b->len / b->size;
 
     if (load >= LOAD) {
-        if (!__grow_HashMap(b))
-            return MEM_ERR;
+        if (_grow_HashMap(b) != ALL_GOOD)
+            return ALLOCATION_FAIL;
     }
 
-    int idx = __hash_Str(s, b->size);
+    int idx = _hash_Str(s, b->size);
     Array *bucket = b->idxs[idx];
 
     //////////////////////
     // create new bucket if needed
     /////////////////////
+
     if (bucket == NULL) {
         bucket = new_Array();
         if (!bucket)
-            return MEM_ERR;
+            return ALLOCATION_FAIL;
         b->idxs[idx] = bucket;
     }
 
     /////////////////////////
     // Enforce unique strings
     /////////////////////////
+
     for (int i = 0; i < bucket->len; ++i) {
         int idx = bucket->block[i];
         if (strcmp(s->block, b->strs->block[idx]->block) == 0) {
-            return DUP_ERR;
+            return DUPLICATE_STRING;
         }
     }
 
-    if (!append_StrArray(b->strs, s)) {
-            return MEM_ERR;
+    if (append_StrArray(b->strs, s) != ALL_GOOD) {
+            return ALLOCATION_FAIL;
     }
 
-    if (!append_Array(bucket, b->strs->len - 1)) {
+    if (append_Array(bucket, b->strs->len - 1) != ALL_GOOD) {
         --b->strs->len;
-        del_Str(b->strs->block[b->len]);
-        return MEM_ERR;
+        b->strs->block[b->strs->len] = NULL;
+        return ALLOCATION_FAIL;
     }
     b->len++;
-    return NO_ERR;
+    return ALL_GOOD;
 }
 
 StrArray *transfer_data(StrArrayBuilder *b) {
