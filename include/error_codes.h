@@ -1,0 +1,8 @@
+#pragma once
+
+typedef enum {
+  ALL_GOOD,
+  ALLOCATION_FAIL,
+  DUPLICATE_STRING,
+  NULL_ARGUMENT,
+} ERROR_CODES;
