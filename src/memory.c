@@ -47,7 +47,7 @@ StrArray *new_StrArray() {
     return strs;
 }
 
-bool __grow_Array(Array *a) {
+bool _grow_Array(Array *a) {
     size_t size = a->size * 2;
     int *new = realloc(a->block, sizeof(int) * size);
     if (!new) {
@@ -58,7 +58,7 @@ bool __grow_Array(Array *a) {
     return true;
 }
 
-bool __grow_Str(Str *s) {
+bool _grow_Str(Str *s) {
     size_t size = s->size * 2;
     char *new = realloc(s->block, size);
     if (!new) {
@@ -69,7 +69,7 @@ bool __grow_Str(Str *s) {
     return true;
 }
 
-bool __grow_StrArray(StrArray *strs) {
+bool _grow_StrArray(StrArray *strs) {
     size_t size = strs->size * 2;
     Str **new = realloc(strs->block, sizeof(Str*) * size);
     if (!new) {
@@ -85,7 +85,7 @@ bool append_Array(Array *a, int n) {
         return false;
     }
     if (a->len + 1 > a->size) {
-        if (!__grow_Array(a)) {
+        if (!_grow_Array(a)) {
             return false;
         }
     }
@@ -98,7 +98,7 @@ bool append_Str(Str *s, char c) {
         return false;
     }
     if (s->len + 1 >= s->size) {
-        if (!__grow_Str(s)) {
+        if (!_grow_Str(s)) {
             return false;
         }
     }
@@ -107,12 +107,12 @@ bool append_Str(Str *s, char c) {
     return true;
 }
 
-bool append_StrArray(StrArray *strs, Str *s) {
+bool append_StrArray(StrArray *strs, const Str *s) {
      if (!strs) {
         return false;
     }
     if (strs->len + 1 > strs->size) {
-        if (!__grow_StrArray(strs)) {
+        if (!_grow_StrArray(strs)) {
             return false;
         }
     }
