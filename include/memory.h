@@ -42,9 +42,9 @@ StrArrayBuilder *new_StrArrayBuilder();
 
 bool append_Array(Array *a, int n);
 bool append_Str(Str *s, char c);
-bool append_StrArray(StrArray *strs, Str *s);
+bool append_StrArray(StrArray *strs, const Str *s);
 
-MEM_ERRORS insert_StrArrayBuilder(StrArrayBuilder *b, Str *s);
+MEM_ERRORS insert_StrArrayBuilder(StrArrayBuilder *b, const Str *s);
 StrArray *transfer_data(StrArrayBuilder *b);
 
 void del_Array(Array *a);
