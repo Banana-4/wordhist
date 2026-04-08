@@ -1,13 +1,8 @@
 #pragma once
+#include "error_codes.h"
 #include <stdlib.h>
 #include <stdbool.h>
 #define SIZE 4
-
-typedef enum {
-  NO_ERR,
-  MEM_ERR,
-  DUP_ERR,
-} MEM_ERRORS;
 
 typedef struct {
     size_t len;
@@ -40,11 +35,11 @@ Str *new_Str();
 StrArray *new_StrArray();
 StrArrayBuilder *new_StrArrayBuilder();
 
-bool append_Array(Array *a, int n);
-bool append_Str(Str *s, char c);
-bool append_StrArray(StrArray *strs, const Str *s);
+ERROR_CODES append_Array(Array *a, int n);
+ERROR_CODES append_Str(Str *s, char c);
+ERROR_CODES append_StrArray(StrArray *strs, Str *s);
 
-MEM_ERRORS insert_StrArrayBuilder(StrArrayBuilder *b, const Str *s);
+ERROR_CODES insert_StrArrayBuilder(StrArrayBuilder *b, Str *s);
 StrArray *transfer_data(StrArrayBuilder *b);
 
 void del_Array(Array *a);
