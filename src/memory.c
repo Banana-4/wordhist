@@ -128,7 +128,7 @@ ERROR_CODES append_StrArray(StrArray *strs, Str *s) {
     return ALL_GOOD;
 }
 
-Str* at_StrArray(StrArray *strs, size_t i) {
+Str* at_StrArray(const StrArray *strs, size_t i) {
 	if (!strs)
 		return NULL;
 	if(i >= strs->len) {
@@ -137,7 +137,7 @@ Str* at_StrArray(StrArray *strs, size_t i) {
 	return strs->strs[i];
 }
 
-const char* c_str(Str* str) {
+const char* c_str(const Str* str) {
 	if(!str)
 		return NULL;
 	return str->c_str;
