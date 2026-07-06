@@ -1,7 +1,7 @@
 # Word Histogram program
 
 ## About
-This is a UNIX-like utility program for outputing a histogram of words lengths with the words list.
+This is a UNIX-like utility program for outputing a histogram of words lengths.
 The inspiration for the program comes from the K&R The C programing language book.
 
 Example:
@@ -25,6 +25,11 @@ Example:
 
 ```
 
+### How to run:
+``` bash
+make
+./wordhist
+```
 
 ### The goals of this project are:
 1. Visualize the data as a histogram.
@@ -41,16 +46,15 @@ Example:
 6. Space Complexity of O(n).
 
 ## Input:
-The input is a stream of characters from stdin or redirected from other sources to the stdin.
+The input is a stream of characters from stdin or redirected to it.
 
 ### Word Definition:
 A word is any character sequence that starts with a letter that contains only letter, digits and '. 
 There is no word boundry checks, its not check if a word is between two blank characters. 
-
 Do to the lack of boundry checks any character sequence that matches the defintion is considered a word. 
 Examples:
-1. 11111hello### - hello is a word
-2. 1can't - is a word.
+1. 11111hello### - hello is a word.
+2. 1can't - can't is a word.
 3. asdsdxzcvwedfdsf23123'23213 is a word.
 
 ## Design:
@@ -62,6 +66,7 @@ The program was developed iteratively through multiple architectural stages:
 3. Unique words only stage. This stage added a hash map for efficent lookup of processed words.
 4. Factory design pattern. In this stage the program was refactored and a string array builder optimization was applied for efficent word list building.
 5. Error Codes. In this stage the API was improved to report back on errors that occured for ease of debuging.
+6. User experience improvements - in this stage the program is made more user friendly.
 
 This increamental development stragy resulted in building a robust and maintainable program.
 
@@ -70,9 +75,6 @@ Modules:
 2. Input - handles input stream transformation to the words list.
 3. Histogram - handles the transformation of words list into a histogram.
 4. Main - cordinates the other modules.
-
-Note:
-The StrArrayBuilder should be semantically a separate module it builds a unique words str array. It accomplish this by deciding which word to store, at its core the string array builder is just a memory manageer. That is why i placed in memory module. 
 
 ### Memory module:
 This module is designed with keeping in mind the program requirements. The data structures inside it are not general and provide only the functionality that the programs requires. There is no support for remove, pop... 
@@ -90,6 +92,9 @@ Module Invariants:
 
 All data structures are constructed with the same size of 4 and grow by a factor of 2.
 This choose is based on the input data. The stream can contain only a small amount of words and seting the start size to a bigger value would waste to much space.
+
+Issue:
+The separation of data and logic is not complete, the user of the memory module still needs to know how the data is stored to access it.   
 
 #### Array:
 This data structure holds data of type int. Its purpose is to provide bucktes for the string array builder hash map.
@@ -166,53 +171,6 @@ Interface:
 The error codes returned by the functions are:
 1. NULL_ARGUMENT - when a null pointer is passed.
 2. ALLOCATION_FAIL - when the append function can't allocate memory.
-
-
-## Enginer's Log:
-
-### First iteration - static memory
-In the first iteration the goal is to have a simple working version of the program. The data is stored in static arrays and the whole program is one monolithic main function.
-In this version I verified my initial idea of how the program whould work, what are the individual steps needed to transform input stream into a words length histogram.
-From this first version the pipeline is:
-1. Allocate and initilaze static memory to hold the program data.
-2. Process input
-3. Output histogram
-
-### Second iteration - dynamic memory and module separation
-The first iteration showed me how should the program needs to be organized.
-The modules are:
-1. Memory.
-2. Input. 
-3. Histogram.
-In this iteration i broke the program into individual modules and implemented dynamic arrays.
-
-### Third iteration - hash map and unique words.
-After getting a basic random size input processing program it was time to handle the problem of processing only unique words from the input.
-The solution was to use a lookup table, hash map. This iteration showed me that doing iterative design and breaking into modules is very powerfull, it allowed me to do minimal changes and reuse code to implement a new functionalty.
-The program now handles:
-1. arbitrary amount of data from input.
-2. unique words.
-
-### Forth iteration - StrArrayBuilder
-
-From the third iteration I was left with a lot of duplicate data stored, word lengths where both in the strings and in the dynamic integer array. Strings where stored both in a string array and the hash map.
-Memory ownership was spread across diffrent data structures. The API design needed improvements.
-There where no precisely defined invariants.
-The first and obvious solution was to remove the dynamic array that stored word lengths.
-
-The second thing I did is define the invariants:
-1. There are no duplicate words in the StrArray.
-2. StrArrayBuilder owns the StrArray while the input is processing.
-3. Strings are owned by the StrArray.
-4. If the input stream cant be processed the program stops and reprots a error.
-
-The third solution was to implement a string array builder that would build a unique words array and than transfer the array ownership to the main function. For that purpose i decided to reuse the hash map using ideas from the python dictonary implementation.
-The python dict uses two arrays:
-1. key-value array.
-2. Hash array that stores the index of the key in the key-value pair at the hashed position of the key.
-
-This give me the idea to use a hash map inside the string builder that uses words as the keys and indexes into the StrArray as the values.
-Doing this cleanly allowed the StrArrayBuilder to maintain unique words and build a StrArray effectivly.
 
 ### Fifth iteration - Error Codes:
 Implemented error codes to preserve inforamtions for debuging.
