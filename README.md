@@ -28,7 +28,7 @@ Example:
 ### How to run:
 ``` bash
 make
-./wordhist
+./wordhist.sh file
 ```
 
 ### The goals of this project are:
