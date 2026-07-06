@@ -2,6 +2,9 @@
 #include "error_codes.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stdio.h>
+
 #define SIZE 4
 
 typedef struct {
@@ -13,13 +16,13 @@ typedef struct {
 typedef struct {
     size_t len;
     size_t size;
-    char *block;
+    char *c_str;
 }Str;
 
 typedef struct {
     size_t len;
     size_t size;
-    Str **block;
+    Str **strs;
 } StrArray;
 
 
@@ -41,6 +44,9 @@ ERROR_CODES append_StrArray(StrArray *strs, Str *s);
 
 ERROR_CODES insert_StrArrayBuilder(StrArrayBuilder *b, Str *s);
 StrArray *transfer_data(StrArrayBuilder *b);
+
+Str* at_StrArray(const StrArray *strs, size_t i);
+const char* c_str(const Str* str);
 
 void del_Array(Array *a);
 void del_Str(Str *s);
