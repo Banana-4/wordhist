@@ -1,4 +1,5 @@
 #include "../include/histogram.h"
+#include <memory.h>
 
 void print_line(int len) {
   while (len--) {
@@ -13,7 +14,7 @@ void vertical_histogram(StrArray *words, int h)
 	print_line(words->len);
     while (height--) {
         for (int i = 0; i < words->len; ++i) {
-            if (words->block[i]->len >= height)
+            if (at_StrArray(words, i)->len >= height)
                 printf(" # ");
             else {
                 printf("   ");
@@ -26,8 +27,8 @@ void vertical_histogram(StrArray *words, int h)
     {
         for(int j = 0; j < words->len; ++j)
         {
-            if(words->block[j]->len > i)
-                printf(" %c ", words->block[j]->block[i]);
+            if(at_StrArray(words, j)->len > i)
+                printf(" %c ", c_str(at_StrArray(words, j))[i]);
             else
             	printf("   ");
         }
@@ -37,14 +38,14 @@ void vertical_histogram(StrArray *words, int h)
 
 void horizontal_histogram(StrArray *words, int h) {
 	for( int i = 0; i < words->len; ++i) {
-		printf(" %s  ", words->block[i]->block);
-		int blanks = h - words->block[i]->len - 1;
+		printf(" %s  ",c_str(at_StrArray(words,i)));
+		int blanks = h - at_StrArray(words, i)->len - 1;
 		if (blanks > 0) {
 			for(int i = 0; i < blanks; ++i)
 				printf(" ");
 		}
 		printf("| ");
-		for (int j = 0; j < words->block[i]->len; ++j)
+		for (int j = 0; j < at_StrArray(words,i)->len; ++j)
 			printf("#");
 		printf("\n");
 	}

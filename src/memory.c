@@ -24,8 +24,8 @@ Str *new_Str() {
     }
     s->size = SIZE;
     s->len = 0;
-    s->block = (char*)malloc(s->size);
-    if (!s->block) {
+    s->c_str = (char*)malloc(s->size);
+    if (!s->c_str) {
         free(s);
         return NULL;
     }
@@ -39,8 +39,8 @@ StrArray *new_StrArray() {
     }
     strs->size = SIZE;
     strs->len = 0;
-    strs->block = (Str**)malloc(sizeof(Str*) * strs->size);
-    if (!strs->block) {
+    strs->strs = (Str**)malloc(sizeof(Str*) * strs->size);
+    if (!strs->strs) {
         free(strs);
         return NULL;
     }
@@ -65,12 +65,12 @@ ERROR_CODES _grow_Str(Str *s) {
         return NULL_ARGUMENT;
     }
     size_t size = s->size * 2;
-    char *new = realloc(s->block, size);
+    char *new = realloc(s->c_str, size);
     if (!new) {
         return ALLOCATION_FAIL;
     }
     s->size = size;
-    s->block = new;
+    s->c_str = new;
     return ALL_GOOD;
 }
 
@@ -79,12 +79,12 @@ ERROR_CODES _grow_StrArray(StrArray *strs) {
       return NULL_ARGUMENT;
     }
     size_t size = strs->size * 2;
-    Str **new = realloc(strs->block, sizeof(Str*) * size);
+    Str **new = realloc(strs->strs, sizeof(Str*) * size);
     if (!new) {
         return ALLOCATION_FAIL;
     }
     strs->size = size;
-    strs->block = new;
+    strs->strs = new;
     return ALL_GOOD;
 }
 
@@ -110,8 +110,8 @@ ERROR_CODES append_Str(Str *s, char c) {
             return ALLOCATION_FAIL;
         }
     }
-    s->block[s->len++] = c;
-    s->block[s->len] = '\0';
+    s->c_str[s->len++] = c;
+    s->c_str[s->len] = '\0';
     return ALL_GOOD;
 }
 
@@ -124,8 +124,23 @@ ERROR_CODES append_StrArray(StrArray *strs, Str *s) {
             return ALLOCATION_FAIL;
         }
     }
-    strs->block[strs->len++] = s;
+    strs->strs[strs->len++] = s;
     return ALL_GOOD;
+}
+
+Str* at_StrArray(StrArray *strs, size_t i) {
+	if (!strs)
+		return NULL;
+	if(i >= strs->len) {
+		return NULL;
+	}
+	return strs->strs[i];
+}
+
+const char* c_str(Str* str) {
+	if(!str)
+		return NULL;
+	return str->c_str;
 }
 
 void del_Array(Array *a) {
@@ -141,7 +156,7 @@ void del_Str(Str *s) {
     if (!s) {
         return;
     }
-    free(s->block);
+    free(s->c_str);
     free(s);
 }
 
@@ -150,8 +165,8 @@ void del_StrArray(StrArray *strs) {
         return;
     }
     for (int i = 0; i < strs->len; ++i) {
-        del_Str(strs->block[i]);
+        del_Str(strs->strs[i]);
     }
-    free(strs->block);
+    free(strs->strs);
     free(strs);
 }

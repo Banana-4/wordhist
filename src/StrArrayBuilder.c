@@ -1,7 +1,5 @@
 #include "../include/memory.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+
 #define LOAD 0.6
 
 StrArrayBuilder *new_StrArrayBuilder() {
@@ -47,7 +45,7 @@ unsigned long _hash(const char *str) {
 }
 
 int _hash_Str(const Str *s, size_t range) {
-  return _hash(s->block) % range;
+  return _hash(c_str(s)) % range;
 }
 
 ERROR_CODES _grow_HashMap(StrArrayBuilder *b) {
@@ -66,7 +64,7 @@ ERROR_CODES _grow_HashMap(StrArrayBuilder *b) {
     //////////////////////////
 
     for (int i = 0; i < b->len; ++i) {
-        int idx = _hash_Str(b->strs->block[i], new_size);
+        int idx = _hash_Str(at_StrArray(b->strs, i), new_size);
         if (!new_idxs[idx]) {
             Array *bucket = new_Array();
             if (!bucket) {
@@ -130,8 +128,10 @@ ERROR_CODES insert_StrArrayBuilder(StrArrayBuilder *b, Str *s) {
 
     if (bucket == NULL) {
         bucket = new_Array();
-        if (!bucket)
+        if (!bucket) {
+            fprintf(stderr, "StrArrayBuilder: Faild to allocate memory for new bucket.\n");
             return ALLOCATION_FAIL;
+        }
         b->idxs[idx] = bucket;
     }
 
@@ -141,18 +141,20 @@ ERROR_CODES insert_StrArrayBuilder(StrArrayBuilder *b, Str *s) {
 
     for (int i = 0; i < bucket->len; ++i) {
         int idx = bucket->block[i];
-        if (strcmp(s->block, b->strs->block[idx]->block) == 0) {
+        if (strcmp(c_str(s), c_str(at_StrArray(b->strs, idx))) == 0) {
             return DUPLICATE_STRING;
         }
     }
 
     if (append_StrArray(b->strs, s) != ALL_GOOD) {
-            return ALLOCATION_FAIL;
+        fprintf(stderr, "StrArrayBuilder: Faild to insert string into StrArray.\n");
+        return ALLOCATION_FAIL;
     }
 
     if (append_Array(bucket, b->strs->len - 1) != ALL_GOOD) {
         --b->strs->len;
-        b->strs->block[b->strs->len] = NULL;
+        b->strs->strs[b->strs->len] = NULL;
+        fprintf(stderr, "StrArrayBuilder: Faild to insert index into hash map.\n");
         return ALLOCATION_FAIL;
     }
     b->len++;
