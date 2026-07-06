@@ -21,8 +21,13 @@ void histogram(StrArray *words, int h) {
             printf("\n");
     }
     print_line(words->len);
-    printf("\n Words List:\n");
-    for (int i = 0; i < words->len; ++i) {
-        printf(" %s : %zu\n", words->block[i]->block, words->block[i]->len);
+    for(int i = 0; i < h; ++i){
+        for(int j = 0; j < words->len; ++j) {
+            if(words->block[j]->len > i)
+                printf(" %c ", words->block[j]->block[i]);
+            else
+            	printf("   ");
+        }
+        printf("\n");
     }
 }
