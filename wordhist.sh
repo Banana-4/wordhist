@@ -14,7 +14,7 @@ fi
 count=$(grep -oE "[[:alpha:]][[:alnum:]']*" "$filename" | wc -l)
 cols=$(tput cols)
 if [ "$count" -gt "$cols" ]; then
-	./wordhist h < "$filename"
+	./wordhist h < "$filename" | less
 else
 	./wordhist < "$filename"
 fi
