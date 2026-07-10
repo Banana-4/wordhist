@@ -32,6 +32,5 @@ In order to use the program the following is required:
 
 ## How to run:
 ``` bash
-make
-./wordhist.sh file
+make && ./wordhist.sh file
 ```
